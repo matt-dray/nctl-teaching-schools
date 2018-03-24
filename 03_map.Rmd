@@ -1,0 +1,300 @@
+---
+title: "Teaching schools in England"
+author: "Matt Dray (not NCTL)"
+output:
+  flexdashboard::flex_dashboard:
+    theme: cerulean
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+# packages
+
+library(crosstalk)  # inter-widget interactivity
+library(dplyr)  # data manipulation and pipes (%>%)
+library(leaflet)  # map widget
+library(DT)  # datatable widget
+
+# data
+
+# pre-prepared spatial points dataframe
+# @data slot is NCTL data with selected GIAS data joined
+# @coords slot is latlongs reprojected from eastings/northings in GIAS data 
+# NCTL: http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm 
+# GIAS: https://get-information-schools.service.gov.uk/ 
+
+schools_spdf <- readRDS("output/schools_spdf.RDS") 
+
+# tidy up a bit
+
+schools_df <- dplyr::bind_cols(
+  schools_spdf@data,
+  as.data.frame(schools_spdf@coords)
+) %>% 
+  dplyr::mutate(
+    num_pupils = as.numeric(num_pupils),
+    ofsted_rating = forcats::fct_explicit_na(ofsted_rating),
+    ofsted_rating = forcats::fct_relevel(
+      ofsted_rating,
+      c("Outstanding", "Good", "Requires improvement")
+    )
+  ) %>% 
+  select(
+    urn,
+    teaching_school,
+    region,
+    local_authority,
+    alliance_name,
+    phase.y,
+    type,
+    ofsted_rating,
+    last_ofsted_date,
+    num_pupils,
+    latitude,
+    longitude
+  )
+
+# create crosstalk shared data object (https://rstudio.github.io/crosstalk/)
+
+sd <- SharedData$new(schools_df)
+```
+
+
+Column {data-width=650}
+-------------------------------------
+
+### Interactive map
+    
+```{r map}
+leaflet::leaflet(sd) %>%
+  leaflet::addProviderTiles(providers$OpenStreetMap) %>% 
+  leaflet::addAwesomeMarkers(
+    popup = ~paste0(
+      
+      # "<h5>", teaching_school, "</h5>",
+      # "<br><b>Unique Ref No:</b> ", urn,
+      # "<br><b>Region:</b> ", region,
+      # "<br><b>Local authority:</b> ", local_authority,
+      # "<br><b>Phase:</b> ", phase.y,
+      # "<br><b>Type:</b> ", type,
+      # "<br><b>Pupil count:</b> ", num_pupils,
+      # "<br><b>Ofsted rating:</b> ", ofsted_rating, " (", last_ofsted_date, ")"
+      
+      "<h5>", teaching_school, "</h5>",
+      "<style>
+        table, th, td {
+          padding: 5px;
+        }
+        table {
+          border-spacing: 15px;
+        }
+      </style>
+      <table style='width:100%'>
+        <tr>
+          <td>URN</td>
+          <td>", urn, "</td> 
+        </tr>
+        <tr>
+          <td>Region</td>
+          <td>", region, "</td> 
+        </tr>
+        <tr>
+          <td>Local authority</td>
+          <td>", local_authority, "</td>
+        </tr>
+        <tr>
+          <td>Alliance</td>
+          <td>", alliance_name, "</td>
+        </tr>
+        <tr>
+          <td>Phase</td>
+          <td>", phase.y, "</td>
+        </tr>
+        <tr>
+          <td>Type</td>
+          <td>", type, "</td>
+        </tr>
+        <tr>
+          <td>Pupil count</td>
+          <td>", num_pupils, "</td>
+        </tr>
+        <tr>
+          <td>Ofsted rating</td>
+          <td>", ofsted_rating, "</td>
+        </tr>
+      </table>"
+),
+    icon = awesomeIcons(
+      library = "ion",
+      icon = "ion-record",
+      iconColor = "white",
+      markerColor = "red"
+    )
+  ) %>% 
+  leaflet::addMeasure()
+```
+    
+Column {data-width=350 .tabset .tabset-fade}
+-------------------------------------
+
+### Filters
+
+<mark>This was built independently and not on behalf of NCTL</mark>
+
+#### Make selections
+
+Make selections below to affect the markers on the map (left) and the table ('Datatable' tab). See the 'How to' tab for more information.
+
+```{r filters}
+# crosstalk filters, sliders, selection
+# https://rstudio.github.io/crosstalk/index.html
+
+crosstalk::bscols(
+  list(
+    filter_select(
+      id = "region",
+      label = "Region",
+      sharedData = sd,
+      group = ~region
+    ),
+    filter_select(
+      id = "local_authority",
+      label = "Local authority",
+      sharedData = sd,
+      group = ~local_authority
+    ),
+    filter_select(
+      id = "alliance",
+      label = "Alliance",
+      sharedData = sd,
+      group = ~alliance_name
+    ),
+    filter_select(
+      id = "phase",
+      label = "Phase",
+      sharedData = sd,
+      group = ~phase.y
+    ),
+    filter_select(
+      id = "type",
+      label = "Type",
+      sharedData = sd,
+      group = ~type
+    ),
+    filter_checkbox(
+      id = "ofsted",
+      label = "Ofsted rating",
+      sharedData = sd,
+      group = ~ofsted_rating,
+      inline = TRUE
+    ),
+    filter_slider(
+      id = "pupil_count",
+      label = "Pupil count",
+      sharedData = sd,
+      column = ~num_pupils,
+      step = 10,
+      round = TRUE,
+      sep = ""
+      # ticks = FALSE
+    )
+  )
+)
+```
+
+### How to
+
+<mark>This was built independently and not on behalf of NCTL</mark>
+
+#### Map
+
+* The map markers and the data in the table ('Datatable' tab) will automatically update based on your selections below
+* You can select multiple points from the map with the resizable selection tool (button in upper left of map below the zoom buttons), which you can reposition by clicking and dragging the grid icon in it's upper left corner
+* Click markers to get information about that point
+* You can measure distances and areas: hover over the button in the upper right of the map, click 'Create new measurement' and add points to the map to start creating a measurement
+
+#### Filters
+
+* You can select multiple options from within each dropdown list
+* To remove a selection, click on it and press delete
+
+#### Datatable
+
+* You can click rows of the datatable (below 'Datatable' tab) to highlight those individual points
+* Deselect highlighted rows by clicking them again
+
+### Datatable
+
+<mark>This was built independently and not on behalf of NCTL</mark>
+
+```{r}
+# DT package for htmlwidgets datatables
+# https://rstudio.github.io/DT/options.html
+
+DT::datatable(
+  data = sd,
+  extensions = "Scroller",  # scroll instead of paginate
+  rownames = FALSE,
+  style = "bootstrap",  # style
+  class = "compact",
+  width = "100%",
+  options = list(
+    deferRender = TRUE,
+    scrollY = 300,
+    scroller = TRUE
+  ),
+  colnames = c(
+    "URN" = "urn",
+    "School" = "teaching_school",
+    "Region" = "region",
+    "Local Authority" = "local_authority",
+    "Alliance" = "alliance_name",
+    "Phase" = "phase.y",
+    "Type" = "type",
+    "Ofsted" = "ofsted_rating",
+    "Inspection date" = "last_ofsted_date",
+    "Pupil count" = "num_pupils",
+    "Latitude" = "latitude",
+    "Longitude" = "longitude"
+    ),
+  caption = "Select a row and that school will be highlighted on the map"
+)
+
+```
+
+### About
+
+#### Disclaimer
+
+* <mark>This was built independently and not on behalf of NCTL</mark>
+* Only schools with co-ordinates listed in [Get Information About Schools](https://get-information-schools.service.gov.uk/) could be mapped (nine are missing from the full dataset)
+* This tool is not a replacement for the official [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) service
+
+#### Teaching schools
+
+The purpose of the [National College for Teaching & Leadership](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership) (from their [About us](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership/about) page) is:
+
+>...to improve academic standards by recruiting and developing a workforce to meet the needs of our school system, and to help schools to help each other to improve. We will work towards developing a 0 to 18 education system which will allow new ways of working to support the best schools, headteachers, and teachers to lead improvements in the quality and training of all school staff.
+
+You can find out more about teaching schools on the ['Teaching schools and system leadership: how you can get involved'](https://www.gov.uk/government/collections/teaching-schools-and-system-leadership-how-you-can-get-involved) collection on GOV.UK.
+
+#### Data
+
+All data are published.
+
+* [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) from [NCTL](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership)
+* [Local authority boundaries](http://geoportal.statistics.gov.uk/datasets/local-authority-districts-december-2017-ultra-generalised-clipped-boundaries-in-united-kingdom-wgs84) from the [ONS Open Geography Portal](http://geoportal.statistics.gov.uk/)
+* [Get Information About Schools](https://get-information-schools.service.gov.uk/) from the [Department for Ecucation](https://www.gov.uk/government/organisations/department-for-education)
+
+#### Tools
+
+* [Crosstalk](https://rstudio.github.io/crosstalk/) for inter-widget interactivity and selection tools
+* [Leaflet](https://rstudio.github.io/leaflet/) for maps widget
+* [DT](https://rstudio.github.io/DT/options.html) for datatable widget
+* [Flexdashboard](https://rmarkdown.rstudio.com/flexdashboard/) for the layout
+* [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/)
+
+#### Version details
+
+Version 0.1
+<br>Generated `r format(Sys.time(), "%d %B %Y")`
