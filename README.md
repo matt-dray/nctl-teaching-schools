@@ -6,7 +6,7 @@ The tool is available here: https://matt-dray.github.io/nctl-teaching-schools/
 
 ## Background
 
-This repo contains a test of [`crosstalk`](https://rstudio.github.io/crosstalk/) for inter-widget interactivty between a [`leaflet`](https://rstudio.github.io/leaflet/) maps and [`datatable`](https://rstudio.github.io/DT/) interactive tables in a [`flexdashboard`]() layout.
+This repo contains a test of [`crosstalk`](https://rstudio.github.io/crosstalk/) for inter-widget interactivty between a [`leaflet`](https://rstudio.github.io/leaflet/) maps and [`datatable`](https://rstudio.github.io/DT/) interactive tables in a [`flexdashboard`](https://rmarkdown.rstudio.com/flexdashboard/) layout.
 
 > Crosstalk is an add-on to the [htmlwidgets](http://www.htmlwidgets.org/) package. It extends htmlwidgets with a set of classes, functions, and conventions for implementing cross-widget interactions (currently, linked brushing and filtering).
 
