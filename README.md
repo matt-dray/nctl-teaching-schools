@@ -1,4 +1,4 @@
-# NCTL mapping with Crosstalk
+# Map Teaching Regulation Agency data using Crosstalk
 
 ## The tool
 
@@ -18,7 +18,7 @@ You can select, filter, search or brush points in the map and the table. Selecti
 
 All data are published.
 
-* [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) from [NCTL](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership)
+* [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) from the National College for Teaching and Leadership, now known as the [Teaching Regulation Agency](https://www.gov.uk/government/organisations/teaching-regulation-agency)
 * [Local authority boundaries](http://geoportal.statistics.gov.uk/datasets/local-authority-districts-december-2017-ultra-generalised-clipped-boundaries-in-united-kingdom-wgs84) from the [ONS Open Geography Portal](http://geoportal.statistics.gov.uk/)
 * [Get Information About Schools](https://get-information-schools.service.gov.uk/) from the [Department for Ecucation](https://www.gov.uk/government/organisations/department-for-education)
 
@@ -26,6 +26,6 @@ You can find out more about teaching schools on the ['Teaching schools and syste
 
 ### Disclaimer
 
-* This was built independently and not on behalf of NCTL
+* This was built independently and not on behalf of the Teaching Regulation Agency
 * Only schools with co-ordinates listed in [Get Information About Schools](https://get-information-schools.service.gov.uk/) could be mapped (nine are missing from the full dataset)
-* This tool is not a replacement for the official [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) service
+* This tool is not a replacement for the official [teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) service
