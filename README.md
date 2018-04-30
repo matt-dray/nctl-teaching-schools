@@ -6,7 +6,7 @@ The tool is available here: https://matt-dray.github.io/nctl-teaching-schools/
 
 ## Background
 
-This repo contains a test of [`crosstalk`](https://rstudio.github.io/crosstalk/) for inter-widget interactivty between a [`leaflet`](https://rstudio.github.io/leaflet/) maps and [`datatable`](https://rstudio.github.io/DT/) interactive tables in a [`flexdashboard`](https://rmarkdown.rstudio.com/flexdashboard/) layout.
+This repo contains a test of [`crosstalk`](https://rstudio.github.io/crosstalk/) for inter-widget interactivity between a [`leaflet`](https://rstudio.github.io/leaflet/) map and [`datatable`](https://rstudio.github.io/DT/) interactive tables and filters in a [`flexdashboard`](https://rmarkdown.rstudio.com/flexdashboard/) layout.
 
 > Crosstalk is an add-on to the [htmlwidgets](http://www.htmlwidgets.org/) package. It extends htmlwidgets with a set of classes, functions, and conventions for implementing cross-widget interactions (currently, linked brushing and filtering).
 
@@ -20,7 +20,7 @@ All data are published.
 
 * [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) from the National College for Teaching and Leadership, now known as the [Teaching Regulation Agency](https://www.gov.uk/government/organisations/teaching-regulation-agency)
 * [Local authority boundaries](http://geoportal.statistics.gov.uk/datasets/local-authority-districts-december-2017-ultra-generalised-clipped-boundaries-in-united-kingdom-wgs84) from the [ONS Open Geography Portal](http://geoportal.statistics.gov.uk/)
-* [Get Information About Schools](https://get-information-schools.service.gov.uk/) from the [Department for Ecucation](https://www.gov.uk/government/organisations/department-for-education)
+* [Get Information About Schools](https://get-information-schools.service.gov.uk/) from the [Department for Education](https://www.gov.uk/government/organisations/department-for-education)
 
 You can find out more about teaching schools on the ['Teaching schools and system leadership: how you can get involved'](https://www.gov.uk/government/collections/teaching-schools-and-system-leadership-how-you-can-get-involved) collection on GOV.UK.
 
