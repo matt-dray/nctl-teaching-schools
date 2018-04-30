@@ -1,4 +1,4 @@
-# Map Teaching Regulation Agency data using Crosstalk
+# Test: map Teaching Regulation Agency data using Crosstalk
 
 ## The tool
 
@@ -10,7 +10,7 @@ This repo contains a test of [`crosstalk`](https://rstudio.github.io/crosstalk/)
 
 > Crosstalk is an add-on to the [htmlwidgets](http://www.htmlwidgets.org/) package. It extends htmlwidgets with a set of classes, functions, and conventions for implementing cross-widget interactions (currently, linked brushing and filtering).
 
-You can select, filter, search or brush points in the map and the table. Selections in one htmlwidget will update the other htmlwidget. This behaviour allows for creation of simple tools that can be shared as HTML without the need for [Shiny](https://shiny.rstudio.com/) and a hosting service.
+Selections in one htmlwidget will update the other htmlwidget. This behaviour allows for creation of simple tools that can be shared as HTML without the need for Shiny and a hosting service.
 
 ## Data
 
