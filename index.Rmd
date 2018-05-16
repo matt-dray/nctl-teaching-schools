@@ -1,10 +1,11 @@
 ---
 title: "Teaching schools in England"
-author: "Matt Dray (not NCTL)"
+author: "Matt Dray"
 output:
   flexdashboard::flex_dashboard:
-    theme: cerulean
+    theme: paper
     source_code: embed
+    favicon: img/mortar.png
 ---
 
 ```{r setup, include=FALSE}
@@ -59,31 +60,86 @@ schools_df <- dplyr::bind_cols(
 sd <- SharedData$new(schools_df)
 ```
 
+Interactives {data-icon="ion-stats-bars"}
+=====================================  
 
-Column {data-width=650}
+Column {data-width=250}
 -------------------------------------
 
-### Interactive map
+### Filters
+
+```{r filters}
+# crosstalk filters, sliders, selection
+# https://rstudio.github.io/crosstalk/index.html
+
+crosstalk::bscols(
+  list(
+    filter_select(
+      id = "region",
+      label = "Region",
+      sharedData = sd,
+      group = ~region
+    ),
+    filter_select(
+      id = "local_authority",
+      label = "Local authority",
+      sharedData = sd,
+      group = ~local_authority
+    ),
+    filter_select(
+      id = "alliance",
+      label = "Alliance",
+      sharedData = sd,
+      group = ~alliance_name
+    ),
+    filter_select(
+      id = "phase",
+      label = "Phase",
+      sharedData = sd,
+      group = ~phase.y
+    ),
+    filter_select(
+      id = "type",
+      label = "Type",
+      sharedData = sd,
+      group = ~type
+    ),
+    filter_checkbox(
+      id = "ofsted",
+      label = "Ofsted rating",
+      sharedData = sd,
+      group = ~ofsted_rating,
+      inline = TRUE,
+      columns = 2
+    ),
+    filter_slider(
+      id = "pupil_count",
+      label = "Pupil count",
+      sharedData = sd,
+      column = ~num_pupils,
+      step = 10,
+      round = TRUE,
+      sep = "",
+      ticks = FALSE
+    )
+  )
+)
+```
+
+Column {.tabset .tabset-fade data-width=750}
+-------------------------------------
+
+### Map
     
 ```{r map}
 leaflet::leaflet(sd) %>%
   leaflet::addProviderTiles(providers$OpenStreetMap) %>% 
   leaflet::addAwesomeMarkers(
-    popup = ~paste0(
-      
-      # "<h5>", teaching_school, "</h5>",
-      # "<br><b>Unique Ref No:</b> ", urn,
-      # "<br><b>Region:</b> ", region,
-      # "<br><b>Local authority:</b> ", local_authority,
-      # "<br><b>Phase:</b> ", phase.y,
-      # "<br><b>Type:</b> ", type,
-      # "<br><b>Pupil count:</b> ", num_pupils,
-      # "<br><b>Ofsted rating:</b> ", ofsted_rating, " (", last_ofsted_date, ")"
-      
-      "<h5>", teaching_school, "</h5>",
+    popup = ~paste0(  # the popup contains a html table
+      "<h6>", teaching_school, "</h6>",
       "<style>
         table, th, td {
-          padding: 5px;
+          padding: 1px;
         }
         table {
           border-spacing: 15px;
@@ -128,120 +184,42 @@ leaflet::leaflet(sd) %>%
       library = "ion",
       icon = "ion-record",
       iconColor = "white",
-      markerColor = "red"
+      markerColor = "blue"
     )
   ) %>% 
   leaflet::addMeasure()
 ```
-    
-Column {data-width=350 .tabset .tabset-fade}
--------------------------------------
-
-### Filters
-
-<mark>This was built independently and not on behalf of NCTL</mark>
-
-#### Make selections
-
-Make selections below to affect the markers on the map (left) and the table ('Datatable' tab). See the 'How to' tab for more information.
-
-```{r filters}
-# crosstalk filters, sliders, selection
-# https://rstudio.github.io/crosstalk/index.html
-
-crosstalk::bscols(
-  list(
-    filter_select(
-      id = "region",
-      label = "Region",
-      sharedData = sd,
-      group = ~region
-    ),
-    filter_select(
-      id = "local_authority",
-      label = "Local authority",
-      sharedData = sd,
-      group = ~local_authority
-    ),
-    filter_select(
-      id = "alliance",
-      label = "Alliance",
-      sharedData = sd,
-      group = ~alliance_name
-    ),
-    filter_select(
-      id = "phase",
-      label = "Phase",
-      sharedData = sd,
-      group = ~phase.y
-    ),
-    filter_select(
-      id = "type",
-      label = "Type",
-      sharedData = sd,
-      group = ~type
-    ),
-    filter_checkbox(
-      id = "ofsted",
-      label = "Ofsted rating",
-      sharedData = sd,
-      group = ~ofsted_rating,
-      inline = TRUE
-    ),
-    filter_slider(
-      id = "pupil_count",
-      label = "Pupil count",
-      sharedData = sd,
-      column = ~num_pupils,
-      step = 10,
-      round = TRUE,
-      sep = ""
-      # ticks = FALSE
-    )
-  )
-)
-```
-
-### How to
-
-<mark>This was built independently and not on behalf of NCTL</mark>
-
-#### Map
-
-* The map markers and the data in the table ('Datatable' tab) will automatically update based on your selections below
-* You can select multiple points from the map with the resizable selection tool (button in upper left of map below the zoom buttons), which you can reposition by clicking and dragging the grid icon in it's upper left corner
-* Click markers to get information about that point
-* You can measure distances and areas: hover over the button in the upper right of the map, click 'Create new measurement' and add points to the map to start creating a measurement
-
-#### Filters
-
-* You can select multiple options from within each dropdown list
-* To remove a selection, click on it and press delete
-
-#### Datatable
-
-* You can click rows of the datatable (below 'Datatable' tab) to highlight those individual points
-* Deselect highlighted rows by clicking them again
 
 ### Datatable
-
-<mark>This was built independently and not on behalf of NCTL</mark>
 
 ```{r}
 # DT package for htmlwidgets datatables
 # https://rstudio.github.io/DT/options.html
 
 DT::datatable(
-  data = sd,
-  extensions = "Scroller",  # scroll instead of paginate
-  rownames = FALSE,
+  data = sd,  # shared data object
+  #filter = "top",  # column filter boxes
+  extensions = c("Scroller", "Buttons"),  # scroll instead of paginate
+  rownames = FALSE,  # remove row names
   style = "bootstrap",  # style
+  width = "100%",  # full width
   class = "compact",
-  width = "100%",
   options = list(
     deferRender = TRUE,
+    # scroll
     scrollY = 300,
-    scroller = TRUE
+    scroller = TRUE,
+    # button
+    autoWidth = TRUE,  # column width consistent when making selections
+      dom = "Blfrtip",
+      buttons =
+        list(
+          list(
+            extend = "collection",
+            buttons = c("csv", "excel"),  # download extension options
+            text = "Download"  # text to display
+          )
+        )
   ),
   colnames = c(
     "URN" = "urn",
@@ -252,49 +230,64 @@ DT::datatable(
     "Phase" = "phase.y",
     "Type" = "type",
     "Ofsted" = "ofsted_rating",
-    "Inspection date" = "last_ofsted_date",
-    "Pupil count" = "num_pupils",
-    "Latitude" = "latitude",
-    "Longitude" = "longitude"
-    ),
-  caption = "Select a row and that school will be highlighted on the map"
+    "Pupil count" = "num_pupils"
+    )
 )
 
 ```
+
+
+Information {data-orientation=rows data-icon="fa-info-circle"}
+=====================================    
+
+### How to
+
+#### Filters
+
+* The map markers and the data in the table on the 'Interactives' page will automatically update based on your selections from the filter boxes, sliders and checkboxes
+* You can select multiple options from within each dropdown list of the filter boxes
+* To remove a selection from a dropdown box, click on it and press delete
+* Note that the dropdown menus aren't linked (i.e. the local authority dropdown will show *all* options regardless of how many regions are selected)
+
+#### Map tab
+
+* You can select multiple points from the map with the resizable selection tool (button in upper left of map below the zoom buttons), which you can reposition by clicking and dragging the grid icon in it's upper left corner
+* Click markers to get a popup with information about that point
+* You can measure distances and areas: hover over the button in the upper right of the map, click 'Create new measurement' and add points to the map to start creating a measurement
+
+#### Datatable tab
+
+* You can click rows of the datatable to highlight those markers on the map
+* Deselect highlighted rows by clicking them again
 
 ### About
 
 #### Disclaimer
 
 * <mark>This was built independently and not on behalf of NCTL</mark>
-* Only schools with co-ordinates listed in [Get Information About Schools](https://get-information-schools.service.gov.uk/) could be mapped (nine are missing from the full dataset)
+* Only schools with co-ordinates listed in [Get Information About Schools](https://get-information-schools.service.gov.uk/) could be mapped
 * This tool is not a replacement for the official [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) service
 
 #### Teaching schools
 
-The purpose of the [National College for Teaching & Leadership](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership) (from their [About us](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership/about) page) is:
+The purpose of the [National College for Teaching & Leadership](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership) (from their [About us](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership/about) page) is 'to improve academic standards by recruiting and developing a workforce to meet the needs of our school system, and to help schools to help each other to improve.' See ['Teaching schools and system leadership: how you can get involved'](https://www.gov.uk/government/collections/teaching-schools-and-system-leadership-how-you-can-get-involved) on GOV.UK.
 
->...to improve academic standards by recruiting and developing a workforce to meet the needs of our school system, and to help schools to help each other to improve. We will work towards developing a 0 to 18 education system which will allow new ways of working to support the best schools, headteachers, and teachers to lead improvements in the quality and training of all school staff.
-
-You can find out more about teaching schools on the ['Teaching schools and system leadership: how you can get involved'](https://www.gov.uk/government/collections/teaching-schools-and-system-leadership-how-you-can-get-involved) collection on GOV.UK.
-
-#### Data
-
-All data are published.
+#### All data are published
 
 * [Teaching schools](http://apps.nationalcollege.org.uk/s2ssd_new/index.cfm) from [NCTL](https://www.gov.uk/government/organisations/national-college-for-teaching-and-leadership)
 * [Local authority boundaries](http://geoportal.statistics.gov.uk/datasets/local-authority-districts-december-2017-ultra-generalised-clipped-boundaries-in-united-kingdom-wgs84) from the [ONS Open Geography Portal](http://geoportal.statistics.gov.uk/)
-* [Get Information About Schools](https://get-information-schools.service.gov.uk/) from the [Department for Ecucation](https://www.gov.uk/government/organisations/department-for-education)
+* [Get Information About Schools](https://get-information-schools.service.gov.uk/) from the [Department for Education](https://www.gov.uk/government/organisations/department-for-education)
+
+#### Code
+
+The underlying code is available on [GitHub](https://github.com/matt-dray/nctl-teaching-schools). You can see a preview by clicking the 'Source code' button in the upper right of this page.
 
 #### Tools
 
+* [Leaflet](https://rstudio.github.io/leaflet/) map widget and [DT](https://rstudio.github.io/DT/options.html) table widget
 * [Crosstalk](https://rstudio.github.io/crosstalk/) for inter-widget interactivity and selection tools
-* [Leaflet](https://rstudio.github.io/leaflet/) for maps widget
-* [DT](https://rstudio.github.io/DT/options.html) for datatable widget
 * [Flexdashboard](https://rmarkdown.rstudio.com/flexdashboard/) for the layout
-* [R](https://www.r-project.org/) and [RStudio](https://www.rstudio.com/)
 
 #### Version details
 
-Version 0.1
-<br>Generated `r format(Sys.time(), "%d %B %Y")`
+Version 0.2, generated `r format(Sys.time(), "%d %B %Y")`
